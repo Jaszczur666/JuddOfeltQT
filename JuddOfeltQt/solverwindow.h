@@ -21,6 +21,10 @@ private slots:
 
     void on_Solvebutt_clicked();
 
+    void on_actionLoad_emission_parameters_from_file_triggered();
+
+    void on_actionQuit_triggered();
+
 private:
     Ui::SolverWindow *ui;
 };
