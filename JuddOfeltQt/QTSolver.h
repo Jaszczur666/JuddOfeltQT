@@ -3,6 +3,7 @@
 #include <string>
 #include  <iostream>
 #include "Eigen\Dense"
+
 using namespace std;
 double const pi=3.141592653589793238462643383279502884;
 double const m=9.1093897e-28;//SI 9.10938291e-31;
@@ -64,14 +65,14 @@ void CalculateHessian(vector <double> u2, vector<double> u4, vector <double> u6,
 //	cout <<"_________________________________"<<endl;
 };
 
-void FitLM(vector <double> u2, vector<double> u4, vector <double> u6, vector <double> lambda0,double n,double twojplusone,double &o2, double &o4, double &o6, vector <double> fexp)//,System::String^ &MSG)
+void FitLM(Experiment &experimental)//vector <double> u2, vector<double> u4, vector <double> u6, vector <double> lambda0,double n,double twojplusone,double &o2, double &o4, double &o6, vector <double> fexp)//,System::String^ &MSG)
 {
 MatrixXd Hessian,Hessiandiag;
 MatrixXd Grad;
 MatrixXd parameters(3,1);
 MatrixXd newparams(3,1);
 MatrixXd error(3,1);
-parameters<<o2,o4,o6;
+parameters<<experimental.o2,experimental.o4,experimental.o6;
 double no2,no4,no6,sumfexp,sumdfexp;
 double lambda,chi2s,chi2n;
 	lambda=1/1024.0;
@@ -82,21 +83,21 @@ double lambda,chi2s,chi2n;
 	cout <<"Beginnig fitting procedure."<<endl;
 	for(int i=1;i<5;i++)
 	{
-	chi2s=chi2(u2,u4,u6,lambda0,n,twojplusone,o2,o4,o6,fexp);
-	CalculateHessian(u2,u4,u6,lambda0,n,twojplusone,o2, o4, o6, fexp, Hessian,Grad);
+    chi2s=chi2(experimental.u2,experimental.u4,experimental.u6,experimental.lambda,experimental.n,experimental.j,experimental.o2,experimental.o4,experimental.o6,experimental.fexp);
+    CalculateHessian(experimental.u2,experimental.u4,experimental.u6,experimental.lambda,experimental.n,experimental.j,experimental.o2,experimental.o4, experimental.o6, experimental.fexp, Hessian,Grad);
 	Hessiandiag=Hessian.diagonal().asDiagonal();
 	newparams=parameters-((Hessian+lambda*Hessiandiag).inverse()*Grad);
 	no2=newparams(0,0);
 	no4=newparams(1,0);
 	no6=newparams(2,0);
-	chi2n=chi2(u2,u4,u6,lambda0,n,twojplusone,no2,no4,no6,fexp);
+    chi2n=chi2(experimental.u2,experimental.u4,experimental.u6,experimental.lambda,experimental.n,experimental.j,no2,no4,no6,experimental.fexp);
 	cout<< i <<" "<< chi2s <<" " <<no2<<" "<<no4<<" "<<no6<<endl;
     //MSG+=i.ToString()+"\t"+chi2s.ToString("G6")+"\t"+no2.ToString("G6")+"\t"+no4.ToString("G6")+"\t"+no6.ToString("G6")+"\r\n";
 		if (chi2n<chi2s){
 			parameters=newparams;
-			o2=no2;
-			o4=no4;
-			o6=no6;
+            experimental.o2=no2;
+            experimental.o4=no4;
+            experimental.o6=no6;
 			lambda=lambda*1.1;
 			}
 		else
@@ -106,23 +107,26 @@ double lambda,chi2s,chi2n;
 	};
 	cout <<"Fitting finished"<<endl;
     //MSG+="Fitting finished \r\n";
-	int size=u2.size();
+    int size=experimental.u2.size();
 	error=(Hessiandiag.inverse().diagonal()*chi2n/(size-3));
 	for (int i=0;i<3;i++) error(i)=sqrt(error(i));
 	cout <<"Errors "<< error(0)<<" "<<error(1)<<" "<< error(2)<<endl;
     //MSG+="Parameters\t o2="+o2.ToString("G4")+"\t o4="+o4.ToString("G4")+"\t o6="+o6.ToString("G4")+"\r\n";
     //MSG+="Errors \t do2="+error(0).ToString("G2")+"\t do4="+error(1).ToString("G2")+"\t do6="+error(2).ToString("G2")+"\r\n";
-	cout << "Relative errors " << 100*error(0)/o2 <<"% "<<100*error(1)/o4 <<"% "<<100*error(2)/o6<<"%"<<endl;
+    cout << "Relative errors " << 100*error(0)/experimental.o2 <<"% "<<100*error(1)/experimental.o4 <<"% "<<100*error(2)/experimental.o6<<"%"<<endl;
     //MSG+="Relative errors \t" + (100*error(0)/o2).ToString("G3") +"%\t"+(100*error(1)/o4).ToString("G3") +"%\t"+(100*error(2)/o6).ToString("G3")+"% \r\n";
-	cout << "Effective relative error "<< 100*(error(0)/o2+error(1)/o4+error(2)/o6)<<"%"<<endl;
+    cout << "Effective relative error "<< 100*(error(0)/experimental.o2+error(1)/experimental.o4+error(2)/experimental.o6)<<"%"<<endl;
 	for (int i=0;i<size;i++){
-		sumdfexp=sumdfexp+abs(pow((fexp[i]-f(u2[i], u4[i], u6[i], lambda0[i],n,twojplusone,o2, o4,o6)),2));
-		sumfexp=sumfexp+fexp[i]/size;
-	cout << fexp[i]<<" " << f(u2[i], u4[i], u6[i], lambda0[i],n,twojplusone,o2, o4,o6)<<"  "<< endl;
+        sumdfexp=sumdfexp+abs(pow((experimental.fexp[i]-f(experimental.u2[i], experimental.u4[i], experimental.u6[i], experimental.lambda[i],experimental.n,experimental.j,experimental.o2, experimental.o4,experimental.o6)),2));
+        sumfexp=sumfexp+experimental.fexp[i]/size;
+    cout << experimental.fexp[i]<<" " << f(experimental.u2[i], experimental.u4[i], experimental.u6[i], experimental.lambda[i],experimental.n,experimental.j,experimental.o2, experimental.o4,experimental.o6)<<"  "<< endl;
 	}
 	cout<<"-----------------------------------------------"<<endl;
 	cout<<"RMS = " <<sqrt(sumdfexp/(size-3))<<" RMS/avg f "<<100*sqrt(sumdfexp/(size-3))/sumfexp<<"%"<<endl;
     //MSG+="RMS = "+sqrt(sumdfexp/(size-3)).ToString("G4")+" RMS/avg f = "+ (100*sqrt(sumdfexp/(size-3))/sumfexp).ToString("G3")+"% \r\n";
+    experimental.do2=error(0);
+    experimental.do4=error(1);
+    experimental.do6=error(2);
 
 }
 

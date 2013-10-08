@@ -16,7 +16,10 @@ local.properties
 .settings/
 JuddOfeltQt/Eigen/
 .loadpath
-
+Makefile
+Makefile.Debug
+Makefile.Release
+ui_solverwindow.h
 # External tool builders
 .externalToolBuilders/
 
