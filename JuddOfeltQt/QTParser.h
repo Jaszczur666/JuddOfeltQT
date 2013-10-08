@@ -18,6 +18,8 @@ double o6;
 double do2;
 double do4;
 double do6;
+double RMS;
+double RMSNormalized;
 std::vector <double> fexp;
 double j;
 bool filled;
