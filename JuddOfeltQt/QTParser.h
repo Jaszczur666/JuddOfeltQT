@@ -6,11 +6,12 @@
 #include <algorithm>
 
 using namespace std;
-struct Experiment{
-std::vector <double> u2;
-std::vector <double> u4;
-std::vector <double> u6;
-std::vector <double> lambda;
+class Experiment{
+public:
+vector <double> u2;
+vector <double> u4;
+vector <double> u6;
+vector <double> lambda;
 double n;
 double o2;
 double o4;
@@ -20,69 +21,73 @@ double do4;
 double do6;
 double RMS;
 double RMSNormalized;
-std::vector <double> fexp;
+vector <double> fexp;
 double j;
 bool filled;
+void LoadAbsoDataFromFile(QString filename);
+void LoadEmDataFromFile(QString Filename);
  Experiment()
   {
     filled=false;
   }
 };
 
-void LoadAbsoDataFromFile(QString Filename, struct Experiment &experimental)
+void Experiment::LoadAbsoDataFromFile(QString Filename)
 {
 	double n, j,u2,u4,u6,wavenumber,pexp;
-	string name,str;
-    name=Filename.toUtf8().constData();
+    wstring name,str;
+    name=Filename.toStdWString();
     ifstream inpfile(name);
+    //cout << "Attempting to open file: "<<name<<endl;
 //	getline(inpfile,str);
 	inpfile>>j>>n;
-	cout << n <<" "<<j<<endl;
-	experimental.lambda.clear();
-	experimental.u2.clear();
-	experimental.u4.clear();
-	experimental.u6.clear();
-	experimental.fexp.clear();
-	experimental.n=n;
-	experimental.j=j;
+    cout <<"n= "<< n <<" j= "<<j<<endl;
+    this->lambda.clear();
+    this->u2.clear();
+    this->u4.clear();
+    this->u6.clear();
+    this->fexp.clear();
+    this->n=n;
+    this->j=j;
 	while(inpfile >> pexp >> wavenumber>>u2>>u4>>u6){
-		experimental.fexp.push_back(pexp);
-		experimental.u2.push_back(u2);
-		experimental.u4.push_back(u4);
-		experimental.u6.push_back(u6);
-		experimental.lambda.push_back(1./wavenumber);
-		experimental.o2=1e-20;
-		experimental.o4=1e-20;
-		experimental.o6=1e-20;
+        this->fexp.push_back(pexp);
+        this->u2.push_back(u2);
+        this->u4.push_back(u4);
+        this->u6.push_back(u6);
+        this->lambda.push_back(1./wavenumber);
+        this->o2=1e-20;
+        this->o4=1e-20;
+        this->o6=1e-20;
 	cout <<pexp <<" "<<1./wavenumber <<" "<<u2<<" "<<" "<<u4<<" "<< u6<<endl;
 	}
 }
 
-void LoadEmDataFromFile(QString Filename, struct Experiment &experimental)
+void Experiment::LoadEmDataFromFile(QString Filename)
 {
 	double n, j,u2,u4,u6,wavenumber,pexp;
-    string name;
-    name=Filename.toUtf8().constData();
+    wstring name;
+    name=Filename.toStdWString();
 	ifstream inpfile(name);
+//    cout<<name<<endl;
 //	getline(inpfile,str);
 	inpfile>>j>>n;
 	cout << n <<" "<<j<<endl;
-	experimental.lambda.clear();
-	experimental.u2.clear();
-	experimental.u4.clear();
-	experimental.u6.clear();
-	experimental.fexp.clear();
-	experimental.n=n;
-	experimental.j=j;
+    this->lambda.clear();
+    this->u2.clear();
+    this->u4.clear();
+    this->u6.clear();
+    this->fexp.clear();
+    this->n=n;
+    this->j=j;
 	while(inpfile >> wavenumber>>u2>>u4>>u6){
-		experimental.fexp.push_back(pexp);
-		experimental.u2.push_back(u2);
-		experimental.u4.push_back(u4);
-		experimental.u6.push_back(u6);
-		experimental.lambda.push_back(1./wavenumber);
-		experimental.o2=1e-20;
-		experimental.o4=1e-20;
-		experimental.o6=1e-20;
+        this->fexp.push_back(pexp);
+        this->u2.push_back(u2);
+        this->u4.push_back(u4);
+        this->u6.push_back(u6);
+        this->lambda.push_back(1./wavenumber);
+        this->o2=1e-20;
+        this->o4=1e-20;
+        this->o6=1e-20;
 	cout  <<1./wavenumber <<" "<<u2<<" "<<" "<<u4<<" "<< u6<<endl;
 	}
 }

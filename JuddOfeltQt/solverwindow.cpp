@@ -25,7 +25,8 @@ void SolverWindow::on_actionLoad_data_from_file_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("Files (*.*)"));
     if (fileName!="") {
         int size;
-        LoadAbsoDataFromFile(fileName,experimental);
+        ui->logpte->appendPlainText(fileName);
+        experimental.LoadAbsoDataFromFile(fileName);
         size=experimental.u2.size();
         ui->tableWidget->setRowCount(size);
         for(int a=0;a<size;a++)
@@ -75,12 +76,13 @@ void SolverWindow::on_actionLoad_emission_parameters_from_file_triggered()
     QString MSG;
     vector <double> a;
     if (fileName!="") {
-        LoadEmDataFromFile(fileName,emission);
+        emission.LoadEmDataFromFile(fileName);
         emission.o2=experimental.o2;
         emission.o4=experimental.o4;
         emission.o6=experimental.o6;
         CalculateRates(emission,a,MSG);
         ui->logpte->appendPlainText(MSG);
+        ui->logpte->appendPlainText(fileName);
     };
 }
 
